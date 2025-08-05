@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_posteary/core/di/injections.dart';
+import 'package:flutter_posteary/core/storage/token_storage.dart';
 import 'package:flutter_posteary/features/login/domain/entities/login_entity.dart';
 import 'package:flutter_posteary/features/login/domain/use_cases/login_usecase.dart';
 import 'package:flutter_posteary/features/login/presentation/pages/login/validations/login_form_validations.dart';
@@ -8,6 +9,11 @@ import 'package:flutter_posteary/features/login/presentation/providers/login_pro
 import 'package:flutter_posteary/shared/widgets/snackbar/snackbar_widget.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+/// A stateful widget that represents the login form in the application.
+/// 
+/// This widget utilizes Riverpod for state management and is responsible
+/// for creating the state of the login form, which handles user input
+/// and validation.
 class LoginForm extends ConsumerStatefulWidget {
   const LoginForm({super.key});
 
@@ -23,16 +29,23 @@ class _LoginFormState extends ConsumerState<LoginForm> {
   final _passwordCtrl = TextEditingController();
   bool _formValid = false;
 
-  /// Validates the form by checking the current state of the form key.
-  /// Updates the form's validity status based on the validation result
+  /// A stateful widget that represents a login form with email and password fields.
+  ///
+  /// The form validates user input and attempts to authenticate the user when submitted.
+  /// It uses controllers to manage the input fields and updates the form's validity status
+  /// based on validation results. Upon successful login, it saves the authentication token
+  /// and displays a success message. If login fails, it shows an error message.
   void _validateForm() {
     final isValid = _formKey.currentState?.validate() ?? false;
     setState(() => _formValid = isValid);
   }
 
-  /// Returns a function that displays a success snackbar if the form is valid.
+  /// A stateful widget that represents a login form with email and password fields.
   ///
-  /// If the form is not valid, returns null.
+  /// The form validates user input and attempts to authenticate the user when submitted.
+  /// It uses controllers to manage the input fields and updates the form's validity status
+  /// based on validation results. Upon successful login, it saves the authentication token
+  /// and displays a success message. If login fails, it shows an error message.
   dynamic _onSave() async {
     if (_formValid) {
       LoginUseCase loginUseCase = di<LoginUseCase>();
@@ -44,6 +57,7 @@ class _LoginFormState extends ConsumerState<LoginForm> {
         final token = await loginUseCase(user);
         if (token.isNotEmpty) {
           ref.read(authProvider.notifier).state = token;
+          saveToken(token);
           SnackBarCustom.open("¡Welcome!", SnackbarType.success);
         }
       } catch (_) {
