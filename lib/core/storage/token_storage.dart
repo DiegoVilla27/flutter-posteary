@@ -23,3 +23,13 @@ Future<String?> getToken() async {
   final prefs = await SharedPreferences.getInstance();
   return prefs.getString('auth_token');
 }
+
+/// Clears the authentication token from persistent storage.
+/// 
+/// This function removes the token stored under the key 'auth_token'
+/// using the `SharedPreferences` package, effectively logging out
+/// the user by deleting their authentication token.
+Future<void> clearToken() async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.remove('auth_token');
+}
